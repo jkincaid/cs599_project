@@ -100,42 +100,65 @@ bool Trie::searchTrie(string subject)
     // Failure
     return false;
 }
-
-// TODO Translate method from pseudocode to C++
-// TODO Add parameter to function called currentMismatch (keeps track of current mismatches) w/ default value 0
-// TODO Add parameter for bestMismatches *pointer* that fills out info
-void Trie::searchTrieRecursively(Node* current, string subject)
+/* 
+ * This function will recursively search the prefix tree for the given subject,
+ * Inputs: 
+ *      Node* current       : A pointer to the root node
+ *      string subject      : The subject we are searching for
+ *      int limit           : The maximum allowable number of mismatches (inclusive)
+ *      int* bestMatch      : A pointer to our least amount of mismatches for our
+ *                            best query. Initialized to our limit + 1
+ *      int* bestIndex      : A pointer to the index of the best query so far.
+ *                            Initialized to any value (preferably 0)
+ *      int currentMismatch : Default value of the current number of mismatches.
+ *      int subjectIndex    : Default value of what base in the subject we are
+ *                            trying to match. 
+ * Outputs:
+ *      Updates values of:
+ *          int* bestMismatch
+ *          int* bestIndex               
+ */
+void Trie::searchTrieRecursively(Node* current, string subject, int limit, int* bestMismatch, int* bestIndex, int currentMismatch = 0, int subjectIndex = 0)
 {
-    if(current->endQuery)
+    // Base case 1: End of the Query
+    // If we have gotten to this point we know that this is better then our current best
+    // - So update values in the memory addresses given by pointers
+    if(current->wordMarker() != 0)
     {
-        if(mismatches < best_mismatches)
-        {
-            best_mismatches = mismatches;
-            best_path = current_path;
-        }
+        *bestMismatch = currentMismatch;
+        *bestIndex = current->wordMarker();
+        return;
     }
-
-    /* TODO Fix block conditions:
-     * If currentMismatches > bestMismatch OR
-     * if currentMismatches > tolerance
-     */
-    if(mismatches > tolerance && mismatches > best_mismatches)
+    
+    // Check if the content of this node matches our subject as long as current node
+    // is not the root node
+    // - if not then increment the mismatch counter
+    if(current->getContent() != subject[subjectIndex] && *current != this->*root)
     {
         best_path = best_path.substr(0, end-1)
         return
+        currentMismatch++;
     }
-
-    if(current->getContent() != subject[index])
+    
+    // Base case 2: Number of current mismatches is greater then limit or
+    // current mismatches is not better then our best
+    // - So we just end this path by returning
+    if(currentMismatch > limit || currentMismatch >= *bestMismatch) 
     {
-        mismatches++;
+        return;
     }
 
-    index++;
+    // If this node is not the root, then increment the subjectIndex by one, as
+    // we are going to check the next base in the subject. 
+    if(*currentNode != this->*root) 
+    {
+        subjectIndex++;
+    }
+    
+    // Then, for each child of the current node, call this method
+    // on the child. After, decrement the subject index
     for(int i=0; i<(current->children.size()); i++)
     {
-        searchTrieRecursively(current->children[i], subject)
+        searchTrieRecursively(current->children[i], subject, limit, bestMismatch, bestIndex, currentMismatch, subjectIndex);
     }
-
-    current_path = current_path.substr(0, current_path.length() - 1);
-    index--;
 }
