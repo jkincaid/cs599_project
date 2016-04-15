@@ -135,8 +135,6 @@ void Trie::searchTrieRecursively(Node* current, string subject, int limit, int* 
     // - if not then increment the mismatch counter
     if(current->getContent() != subject[subjectIndex] && *current != this->*root)
     {
-        best_path = best_path.substr(0, end-1)
-        return
         currentMismatch++;
     }
     
