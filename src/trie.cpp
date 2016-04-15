@@ -148,7 +148,7 @@ void Trie::searchTrieRecursively(Node* current, string subject, int limit, int* 
 
     // If this node is not the root, then increment the subjectIndex by one, as
     // we are going to check the next base in the subject. 
-    if(*currentNode != this->*root) 
+    if(*current != this->*root) 
     {
         subjectIndex++;
     }
