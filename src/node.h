@@ -47,6 +47,7 @@ class Node
         // Single base
         char content;
         // True if query ended
+        // TODO Change endQuery to an integer that keeps track of line of query in file.
         bool endQuery;
 
         // Dynamic-size array that holds all children
