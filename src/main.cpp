@@ -17,6 +17,7 @@ int main()
 	// Search for subject
     if ( trie->searchTrie("CGATCGATCGATCGATCGTCGCTACGA") )
         cout << "Found CGATCGATCGATCGATCGTCGCTACGA" << endl;
+    // TODO Create local variable that keeps track of best mismatches and index.
 
 	// Free memory because we are good people
     delete trie;

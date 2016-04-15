@@ -101,6 +101,9 @@ bool Trie::searchTrie(string subject)
     return false;
 }
 
+// TODO Translate method from pseudocode to C++
+// TODO Add parameter to function called currentMismatch (keeps track of current mismatches) w/ default value 0
+// TODO Add parameter for bestMismatches *pointer* that fills out info
 void Trie::searchTrieRecursively(Node* current, string subject)
 {
     if(current->endQuery)
@@ -112,6 +115,10 @@ void Trie::searchTrieRecursively(Node* current, string subject)
         }
     }
 
+    /* TODO Fix block conditions:
+     * If currentMismatches > bestMismatch OR
+     * if currentMismatches > tolerance
+     */
     if(mismatches > tolerance && mismatches > best_mismatches)
     {
         best_path = best_path.substr(0, end-1)
