@@ -10,16 +10,19 @@ int main()
     Trie* trie = new Trie();
     
     // Add queries
-    trie->addQuery("ACTGTATCGATCGCTGTTACGTCGCTATATCGACTACGTACGATCGACGTACGACTAGCTAGCTCGAT6CGATCGACGATCGATCGATCGATGCAGCATGCATCGACTGACTGATCGATCGATCGATCGATCGACTTTTACGATCGCATCGATCGCACGTACTGATCGACTAGCTACGATG");
-    trie->addQuery("ACTGACTGATCGATCGATCGATGCTACTACCTACTATCTACGACTGCTCGATCGATCGTACGATCG");
-    trie->addQuery("CGATCGATCGATCGATCGTCGCTACGAT");
+    trie->addQuery("ATTGGTACACATTGGTACACATTGGTACACATTGGTACACATTGGTACAC");
+    trie->addQuery("ACGGTGCGGCTTATTGGTACACATTGGTACACATTGGTACACATTGGTAC");
+    trie->addQuery("ATAACCCATATTATTGGTACACATTGGTACACATTGGTACACATTGGTAC");
+    trie->addQuery("CAAACCCCTTTTATTGGTACACATTGGTACACATTGGTACACATTGGTAC");
 
 	// Search for subject
-    if ( trie->searchTrie("CGATCGATCGATCGATCGTCGCTACGA") )
-        cout << "Found CGATCGATCGATCGATCGTCGCTACGA" << endl;
+    string subject = "ACGGTGCGGCTTATTGGTACACATTGGTACACACTGGTACACATTGGTAC";
+    trie->searchTrieRecursively(trie->getRoot(), subject, 1);
+    
+    cout << "Found " << subject << " at: " << trie->getIndex() << " with: " << trie->getMismatch() << " mismatches."  << endl;
     // TODO Create local variable that keeps track of best mismatches and index.
 
-	// Free memory because we are good people
+    // Free memory because we are good people
     delete trie;
     
     // Success

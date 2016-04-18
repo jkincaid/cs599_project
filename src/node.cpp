@@ -3,6 +3,7 @@
 //
 
 #include "node.h"
+#define NULL
 
 /* Input: char (base)
  * Function: checks if a certain base exists for the current node
@@ -10,7 +11,14 @@
  */
 Node* Node::findChild(char base)
 {
+    Node* null = new Node();
+    null->setIndexMarker(-1);
+    
+    if(nodeChildren.empty()) { return null; };
+    
     // Goes through every child
+    
+            
     for ( int i = 0; i < nodeChildren.size(); i++ )
     {
         // Current node is the child
@@ -24,7 +32,6 @@ Node* Node::findChild(char base)
             return tempChild;
         }
     }
-
-    return nullptr;
+    
+    return null;
 }
-

@@ -22,10 +22,17 @@ class Trie
 
         // Prototypes
         void addQuery(string query);
-        bool searchTrie(string subject);
-
+        int searchTrie(string subject);
+        void searchTrieRecursively(Node* current, string subject, int limit, int currentMismatch = 0, int subjectIndex = 0);
+        int getMismatch() { return this->bestMismatch; };
+        int getIndex() { return this->bestIndex; };
+        Node* getRoot() { return this->root; };
+        
     private:
         Node* root;
+        int bestIndex;
+        int bestMismatch;
+        int numberOfQuerys;
 };
 
 
