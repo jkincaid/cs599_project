@@ -3,16 +3,20 @@
 //
 
 #include "trie.h"
+#include <iostream>
 
 // Constructor --> create an empty root
 Trie::Trie()
 {
     root = new Node();
+    root->setIndexMarker(-1);
+    numberOfQuerys = 0;
+    bestMismatch = 99999999;
+    bestIndex = -1;
 }
 
 // Deconstructor --> free memory
 Trie::~Trie() {}
-
 
 /* Input: string
  * Function: adds a query to the trie
@@ -27,10 +31,8 @@ void Trie::addQuery(string query)
     // Word is empty, immediate marker
     if ( query.length() == 0 )
     {
-        current->setWordMarker();
         return;
     }
-
     // Go until end of query
     for ( int i = 0; i < query.length(); i++ )
     {
@@ -39,23 +41,27 @@ void Trie::addQuery(string query)
         Node* child = current->findChild(query[i]);
 
         // Child was found, go to it
-        if ( child != NULL )
+        if ( child->getIndexMarker() != -1 )
         {
             current = child;
         }
 
-            // No child was found, create one
+        // No child was found, create one
         else
         {
             Node* tmp = new Node();
+            tmp->setIndexMarker(0);
             tmp->setContent(query[i]);
             current->appendChild(tmp);
             current = tmp;
         }
 
-        if ( i == query.length() - 1 )
-            current->setWordMarker();
+        if ( i == query.length() - 1 ) {
+            this->numberOfQuerys++;
+            current->setIndexMarker(this->numberOfQuerys);
+        }
     }
+    
 }
 
 
@@ -63,9 +69,8 @@ void Trie::addQuery(string query)
  * Function: attempts to fuzzy match subject to all queries up to X mismatches
  * Output: best query and score
  */
-bool Trie::searchTrie(string subject)
+int Trie::searchTrie(string subject)
 {
-
     // Start at root
     Node* current = root;
 
@@ -81,20 +86,17 @@ bool Trie::searchTrie(string subject)
             Node* tmp = current->findChild(subject[i]);
 
             // Child is dead end for matching
-            if ( tmp == NULL )
-                return false;
+            if ( tmp->getIndexMarker() == -1 ) { return false; };
 
             // Move to child
             current = tmp;
         }
 
         // Found everything up until end of word --> success
-        if ( current->wordMarker() )
-            return true;
+        if ( current->getIndexMarker() != 0 ) { return current->getIndexMarker(); }
 
-            // Dead end
-        else
-            return false;
+        // Dead end
+        else { return -1; }
     }
 
     // Failure
@@ -118,45 +120,46 @@ bool Trie::searchTrie(string subject)
  *          int* bestMismatch
  *          int* bestIndex               
  */
-void Trie::searchTrieRecursively(Node* current, string subject, int limit, int* bestMismatch, int* bestIndex, int currentMismatch = 0, int subjectIndex = 0)
+void Trie::searchTrieRecursively(Node* current, string subject, int limit, int currentMismatch, int subjectIndex)
 {
-    // Base case 1: End of the Query
-    // If we have gotten to this point we know that this is better then our current best
-    // - So update values in the memory addresses given by pointers
-    if(current->wordMarker() != 0)
-    {
-        *bestMismatch = currentMismatch;
-        *bestIndex = current->wordMarker();
-        return;
-    }
-    
     // Check if the content of this node matches our subject as long as current node
     // is not the root node
     // - if not then increment the mismatch counter
-    if(current->getContent() != subject[subjectIndex] && *current != this->*root)
+    if(current->getContent() != subject[subjectIndex] && current->getIndexMarker() != -1)
     {
         currentMismatch++;
     }
     
-    // Base case 2: Number of current mismatches is greater then limit or
+    // Base case 1: Number of current mismatches is greater then limit or
     // current mismatches is not better then our best
     // - So we just end this path by returning
-    if(currentMismatch > limit || currentMismatch >= *bestMismatch) 
+    if(currentMismatch > limit || currentMismatch >= this->bestMismatch) 
     {
         return;
     }
+    
+    // Base case 2: End of the Query
+    // If we have gotten to this point we know that this is better then our current best
+    // - So update values in the memory addresses given by pointers
+    if(current->getIndexMarker() != 0 && current->getIndexMarker() != -1)
+    {
+        this->bestMismatch = currentMismatch;
+        this->bestIndex = current->getIndexMarker();
+        return;
+    }    
 
     // If this node is not the root, then increment the subjectIndex by one, as
     // we are going to check the next base in the subject. 
-    if(*current != this->*root) 
+    if(current->getIndexMarker() != -1) 
     {
         subjectIndex++;
     }
     
     // Then, for each child of the current node, call this method
     // on the child. After, decrement the subject index
-    for(int i=0; i<(current->children.size()); i++)
+    for(int i=0; i<(current->children().size()); i++)
     {
-        searchTrieRecursively(current->children[i], subject, limit, bestMismatch, bestIndex, currentMismatch, subjectIndex);
+        searchTrieRecursively(current->children().at(i), subject, limit, currentMismatch, subjectIndex);
     }
+    return;
 }

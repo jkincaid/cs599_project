@@ -16,7 +16,8 @@ class Node
         Node()
         {
             content = ' ';
-            endQuery = false;
+            index = false;
+            nodeChildren.reserve(4);
         }
 
         // Deconstructor
@@ -28,11 +29,11 @@ class Node
         // Set base
         void setContent(char base) { content = base; }
 
-        // True if query ends at current node, false otherwise
-        bool wordMarker() { return endQuery; }
+        // index if query ends at current node, 0 otherwise
+        int getIndexMarker() { return index; }
 
-        // Set true if end query, naturally false
-        void setWordMarker() { endQuery = true; }
+        // Set index if end query, naturally 0
+        void setIndexMarker(int newIndex) { index = newIndex; }
 
         // Add a child to the current node's vector
         void appendChild(Node* child) { nodeChildren.push_back(child); } // push_back == append
@@ -46,12 +47,12 @@ class Node
     private:
         // Single base
         char content;
-        // True if query ended
-        // TODO Change endQuery to an integer that keeps track of line of query in file.
-        bool endQuery;
 
+        // index of query
+        int index;
+        
         // Dynamic-size array that holds all children
-        vector<Node*> nodeChildren;
+        vector<Node*> nodeChildren;      
 };
 
 
