@@ -13,6 +13,7 @@ Trie::Trie()
     numberOfQuerys = 0;
     bestMismatch = 99999999;
     bestIndex = -1;
+    numberOfNodes =0;
 }
 
 // Deconstructor --> free memory
@@ -54,6 +55,7 @@ void Trie::addQuery(string query)
             tmp->setContent(query[i]);
             current->appendChild(tmp);
             current = tmp;
+            this->numberOfNodes++;          // this should work i'm not getting any results
         }
 
         if ( i == query.length() - 1 ) {
@@ -105,7 +107,7 @@ int Trie::searchTrie(string subject)
 /* 
  * This function will recursively search the prefix tree for the given subject,
  * Inputs: 
- *      Node* current       : A pointer to the root node
+ *      Node* current       : A pointer to the root Node
  *      string subject      : The subject we are searching for
  *      int limit           : The maximum allowable number of mismatches (inclusive)
  *      int* bestMatch      : A pointer to our least amount of mismatches for our
@@ -122,8 +124,8 @@ int Trie::searchTrie(string subject)
  */
 void Trie::searchTrieRecursively(Node* current, string subject, int limit, int currentMismatch, int subjectIndex)
 {
-    // Check if the content of this node matches our subject as long as current node
-    // is not the root node
+    // Check if the content of this Node matches our subject as long as current Node
+    // is not the root Node
     // - if not then increment the mismatch counter
     if(current->getContent() != subject[subjectIndex] && current->getIndexMarker() != -1)
     {
@@ -148,18 +150,24 @@ void Trie::searchTrieRecursively(Node* current, string subject, int limit, int c
         return;
     }    
 
-    // If this node is not the root, then increment the subjectIndex by one, as
+    // If this Node is not the root, then increment the subjectIndex by one, as
     // we are going to check the next base in the subject. 
     if(current->getIndexMarker() != -1) 
     {
         subjectIndex++;
     }
     
-    // Then, for each child of the current node, call this method
+    // Then, for each child of the current Node, call this method
     // on the child. After, decrement the subject index
     for(int i=0; i<(current->children().size()); i++)
     {
         searchTrieRecursively(current->children().at(i), subject, limit, currentMismatch, subjectIndex);
     }
     return;
+}
+// a working search function to make sure our trie is being built correctly
+//this is neede for debugging
+bool Trie::strictSearch(std::string subject) {
+
+    return false;
 }

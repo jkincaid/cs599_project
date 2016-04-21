@@ -24,15 +24,18 @@ class Trie
         void addQuery(string query);
         int searchTrie(string subject);
         void searchTrieRecursively(Node* current, string subject, int limit, int currentMismatch = 0, int subjectIndex = 0);
+        bool strictSearch(std::string subject);
         int getMismatch() { return this->bestMismatch; };
         int getIndex() { return this->bestIndex; };
         Node* getRoot() { return this->root; };
+        int getSize() {return this->numberOfNodes;}
         
     private:
         Node* root;
         int bestIndex;
         int bestMismatch;
         int numberOfQuerys;
+        int numberOfNodes;
 };
 
 
