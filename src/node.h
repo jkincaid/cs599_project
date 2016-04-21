@@ -7,7 +7,6 @@
 
 #include <vector>
 
-using namespace std;
 
 class Node
 {
@@ -42,7 +41,7 @@ class Node
         Node* findChild(char base);
 
         // Returns vector of children if found
-        vector<Node*> children() { return nodeChildren; }
+        std::vector<Node*> children() { return nodeChildren; }
 
     private:
         // Single base
@@ -52,7 +51,7 @@ class Node
         int index;
         
         // Dynamic-size array that holds all children
-        vector<Node*> nodeChildren;      
+        std::vector<Node*> nodeChildren;
 };
 
 

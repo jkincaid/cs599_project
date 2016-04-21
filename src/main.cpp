@@ -31,11 +31,25 @@ int main()
     std::string fileName = "dengV2_";
     int listIndex = 0;
 
+    //create new tree
     Trie* listTest = new Trie;
+
+    //prefix of name of the test files
     std::string tmpFileName = fileName;
+
+    //append the length of the list to the name of the file
     tmpFileName += to_string(listSize[listIndex]);
+
+    //add mime type because cxx hates you
+    tmpFileName += ".txt";
+
+    //open the file
     ifstream file(tmpFileName);
-    //ofstream wfile("dengV2_index11");
+
+    //debug
+    //ofstream wfile("dengV2_index11.txt");
+
+    //temp string to store references
     std::string* strTemp = new std::string[5];
 
     if (file.is_open()) {
@@ -56,10 +70,16 @@ int main()
             }
 
         }
+    }else {
+        printf("failed to open file");
+        return 0;
     }
+
+    //display tree info
     printf("\n%s %6d %s %6d %s\n","Trie was created with list of size ", listSize[listIndex],
            " the size of the trie is ", listTest->getSize(),"# of nodes");
 
+    //test to see if known strings are in tree
     for(int j = 0; j < 5; j++) {
 
         listTest->searchTrieRecursively(listTest->getRoot(),strTemp[j],1);

@@ -19,11 +19,12 @@ Trie::Trie()
 // Deconstructor --> free memory
 Trie::~Trie() {}
 
-/* Input: string
+/* Input: std::string
+
  * Function: adds a query to the trie
  * Output: void
  */
-void Trie::addQuery(string query)
+void Trie::addQuery(std::string query)
 {
 
     // Start at root
@@ -55,7 +56,8 @@ void Trie::addQuery(string query)
             tmp->setContent(query[i]);
             current->appendChild(tmp);
             current = tmp;
-            this->numberOfNodes++;          // this should work i'm not getting any results
+            this->numberOfNodes++;          // keep track of size of the tree i.e how many nodes
+
         }
 
         if ( i == query.length() - 1 ) {
@@ -67,11 +69,12 @@ void Trie::addQuery(string query)
 }
 
 
-/* Input: string (subject)
+/* Input: std::string
+  (subject)
  * Function: attempts to fuzzy match subject to all queries up to X mismatches
  * Output: best query and score
  */
-int Trie::searchTrie(string subject)
+int Trie::searchTrie(std::string subject)
 {
     // Start at root
     Node* current = root;
@@ -108,7 +111,7 @@ int Trie::searchTrie(string subject)
  * This function will recursively search the prefix tree for the given subject,
  * Inputs: 
  *      Node* current       : A pointer to the root Node
- *      string subject      : The subject we are searching for
+ *      std::st *     subject      : The subject we are searching for
  *      int limit           : The maximum allowable number of mismatches (inclusive)
  *      int* bestMatch      : A pointer to our least amount of mismatches for our
  *                            best query. Initialized to our limit + 1
@@ -122,7 +125,7 @@ int Trie::searchTrie(string subject)
  *          int* bestMismatch
  *          int* bestIndex               
  */
-void Trie::searchTrieRecursively(Node* current, string subject, int limit, int currentMismatch, int subjectIndex)
+void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, int currentMismatch, int subjectIndex)
 {
     // Check if the content of this Node matches our subject as long as current Node
     // is not the root Node
