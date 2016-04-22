@@ -11,7 +11,7 @@ Trie::Trie()
     root = new Node();
     root->setIndexMarker(-1);
     numberOfQuerys = 0;
-    bestMismatch = 99999999;
+
     bestIndex = -1;
     numberOfNodes =0;
 }
@@ -133,13 +133,15 @@ void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, 
     if(current->getContent() != subject[subjectIndex] && current->getIndexMarker() != -1)
     {
         currentMismatch++;
+        this->mismatchIndices.push_back(subjectIndex);
     }
     
-    // Base case 1: Number of current mismatches is greater then limit or
-    // current mismatches is not better then our best
+    // Base case 1: Number of current mismatches is greater then limit
     // - So we just end this path by returning
-    if(currentMismatch > limit || currentMismatch >= this->bestMismatch) 
+
+    if(currentMismatch > limit)
     {
+        this->mismatchIndices.pop_back();
         return;
     }
     
@@ -150,6 +152,8 @@ void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, 
     {
         this->bestMismatch = currentMismatch;
         this->bestIndex = current->getIndexMarker();
+        this->solution_dictionary.emplace(this->bestIndex,this->mismatchIndices);
+        this->mismatchIndices.pop_back();
         return;
     }    
 
@@ -166,8 +170,17 @@ void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, 
     {
         searchTrieRecursively(current->children().at(i), subject, limit, currentMismatch, subjectIndex);
     }
+    this->mismatchIndices.pop_back();
     return;
 }
+
+//return the results and clear old indices
+std::map<int,std::vector<int>> Trie::getResults() {
+
+
+
+}
+
 // a working search function to make sure our trie is being built correctly
 //this is neede for debugging
 bool Trie::strictSearch(std::string subject) {
