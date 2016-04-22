@@ -36,7 +36,7 @@ void Trie::addQuery(std::string query)
         return;
     }
     // Go until end of query
-    for ( int i = 0; i < query.length(); i++ )
+    for ( unsigned int i = 0; i < query.length(); i++ )
     {
 
         // Check if there's already a child (base) to go to
@@ -84,7 +84,7 @@ int Trie::searchTrie(std::string subject)
     {
 
         // Go until end of subject length
-        for ( int i = 0; i < subject.length(); i++ )
+        for ( unsigned int i = 0; i < subject.length(); i++ )
         {
 
             // Try to find child with current base of subject
@@ -162,7 +162,7 @@ void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, 
     
     // Then, for each child of the current Node, call this method
     // on the child. After, decrement the subject index
-    for(int i=0; i<(current->children().size()); i++)
+    for(unsigned int i=0; i<(current->children().size()); i++)
     {
         searchTrieRecursively(current->children().at(i), subject, limit, currentMismatch, subjectIndex);
     }
