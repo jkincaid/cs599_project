@@ -15,7 +15,7 @@ class Node
         Node()
         {
             content = ' ';
-            index = false;
+            index = 0;
             nodeChildren.reserve(4);
         }
 
