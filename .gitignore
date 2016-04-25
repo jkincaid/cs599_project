@@ -26,3 +26,6 @@
 *.exe
 *.out
 *.app
+
+# JetBrain products-related folder
+.idea/
