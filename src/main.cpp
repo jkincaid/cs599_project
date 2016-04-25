@@ -1,15 +1,84 @@
 #include <iostream>
 #include <fstream>
+#include <random>
+#include <chrono>
 #include "trie.h"
 
 using namespace std;
 
+// Returns time in seconds.
+std::chrono::duration<double> benchmark(unsigned long query_size, unsigned long subject_size);
+std::string random_sequence(unsigned long size, std::mt19937_64 rand_gen);
+
+std::chrono::duration<double> benchmark(unsigned long query_size, unsigned long subject_size)
+{
+    std::mt19937_64 rand_gen;
+    const int ITER_COUNT = 100;
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time, end_time;
+    start_time = std::chrono::high_resolution_clock::now();
+    for(int iter = 0; iter < ITER_COUNT; iter++)
+    {
+        Trie* trie = new Trie();
+        for(int i = 0; i < 4; i++)
+        {
+            trie->addQuery(random_sequence(query_size, rand_gen));
+        }
+        std::string subject = random_sequence(subject_size, rand_gen);
+        trie->searchTrieRecursively(trie->getRoot(), subject, 1);
+
+        delete trie;
+    }
+    end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> exec_duration = end_time - start_time;
+    // Account for the average duration.
+    exec_duration /= ITER_COUNT;
+
+    return exec_duration;
+}
+
+std::string random_sequence(unsigned long size, std::mt19937_64 rand_gen)
+{
+    std::uniform_int_distribution<unsigned long long> dist(0,3);
+    unsigned char table[4] = {'A', 'C', 'G', 'T'};
+
+    std::string sequence;
+    sequence.reserve(size);
+
+    for(unsigned long i = 0; i < size; i++)
+    {
+        sequence[i] = table[dist(rand_gen)];
+    }
+
+    return sequence;
+}
+
 // Test program
 int main()
 {
+    // Benchmark construction, search, and destruction.
+    unsigned int query_sizes[4] = {10, 20, 40, 80};
+    for(unsigned int size : query_sizes)
+    {
+        std::cout << "Benchmarking query size " << size << "..." << std::endl;
+        std::chrono::duration<double> exec_duration = benchmark(size, 1000000);
+        std::cout << "Done." << std::endl << "Time: " << exec_duration.count() << " s" << std::endl;
+    }
+
+    std::cout << std::endl;
+    unsigned int subj_sizes[4] = {10000, 100000, 1000000, 10000000};
+    for(unsigned int size : subj_sizes)
+    {
+        std::cout << "Benchmarking subject size " << size << "..." << std::endl;
+        std::chrono::duration<double> exec_duration = benchmark(50, size);
+        std::cout << "Done." << std::endl << "Time: " << exec_duration.count() << " s" << std::endl;
+    }
+
+
+
 	// Create trie
     Trie* trie = new Trie;
-    
+
     // Add queries
     trie->addQuery("ATTGGTACACATTGGTACACATTGGTACACATTGGTACACATTGGTACAC");
     trie->addQuery("ACGGTGCGGCTTATTGGTACACATTGGTACACATTGGTACACATTGGTAC");
@@ -19,7 +88,7 @@ int main()
 	// Search for subject
     string subject = "ACGGTGCGGCTTATTGGTACACATTGGTACACACTGGTACACATTGGTAC";
     trie->searchTrieRecursively(trie->getRoot(), subject, 1);
-    
+
     cout << "Found " << subject << " at: " << trie->getIndex() << " with: " << trie->getMismatch() << " mismatches."  << endl;
     // TODO Create local variable that keeps track of best mismatches and index.
 
