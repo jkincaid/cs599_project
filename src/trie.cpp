@@ -4,6 +4,7 @@
 
 #include "trie.h"
 #include <iostream>
+#include <c++/queue>
 
 // Constructor --> create an empty root
 Trie::Trie()
@@ -177,13 +178,34 @@ void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, 
 //return the results and clear old indices
 std::map<int,std::vector<int>> Trie::getResults() {
 
+    return solution_dictionary;
+
+}
+
+void Trie::searchWithMismatch(std::string subject) {
+
+
+    std::queue<Node*> treeNodes;
+
+    Node* current = root;
+
+    treeNodes.push(current);
+
+
+
+    while(!treeNodes.empty()){
+
+        Node* tmp = treeNodes.front();
+        treeNodes.pop();
+
+        for(Node* n : tmp->getChildren()){
+
+            treeNodes.push(n);
+
+            numberOfNodes++;
+
+        }
 
 
 }
 
-// a working search function to make sure our trie is being built correctly
-//this is neede for debugging
-bool Trie::strictSearch(std::string subject) {
-
-    return false;
-}

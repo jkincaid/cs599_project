@@ -82,7 +82,7 @@ int main()
     //test to see if known strings are in tree
     for(int j = 0; j < 5; j++) {
 
-        listTest->searchTrieRecursively(listTest->getRoot(),strTemp[j],1);
+        //listTest->searchTrieRecursively(listTest->getRoot(),strTemp[j],1);
 
         if(listTest->getMismatch() != 99999999) {
             printf("%s %s %s %d %s %d\n", "found the word", strTemp[j].c_str(),
@@ -92,7 +92,7 @@ int main()
 
             printf("\nDidn't find it recursively lets check our search function!\nBecause it should be in the list\n");
 
-            if(listTest->strictSearch(strTemp[j])){
+            if(listTest->searchTrie(strTemp[j])){
 
                 printf("\nfound the word %s\n", strTemp[j].c_str());
             }else{

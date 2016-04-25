@@ -43,6 +43,8 @@ class Node
         // Returns vector of children if found
         std::vector<Node*> children() { return nodeChildren; }
 
+        std::vector<Node*> getChildren(){ return nodeChildren}
+
     private:
         // Single base
         char content;

@@ -24,12 +24,12 @@ class Trie
         void addQuery(std::string query);
         int searchTrie(std::string subject);
         void searchTrieRecursively(Node* current, std::string subject, int limit, int currentMismatch = 0, int subjectIndex = 0);
-        bool strictSearch(std::string subject);
         int getMismatch() { return this->bestMismatch; };
         int getIndex() { return this->bestIndex; };
         Node* getRoot() { return this->root; };
         int getSize() {return this->numberOfNodes;}
         std::map<int,std::vector<int>> getResults();
+        void searchWithMismatch(std::string subject);
         
     private:
         Node* root;
