@@ -10,19 +10,20 @@ using namespace std;
 std::chrono::duration<double> benchmark(unsigned long query_size, unsigned long subject_size);
 std::string random_sequence(unsigned long size, std::mt19937_64 rand_gen);
 
-std::chrono::duration<double> benchmark(unsigned long query_size, unsigned long subject_size)
+std::chrono::duration<double> benchmark(unsigned long query_count, unsigned long subject_size)
 {
     std::mt19937_64 rand_gen;
     const int ITER_COUNT = 100;
+    const int MER_LEN = 50;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time, end_time;
     start_time = std::chrono::high_resolution_clock::now();
     for(int iter = 0; iter < ITER_COUNT; iter++)
     {
         Trie* trie = new Trie();
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < query_count; i++)
         {
-            trie->addQuery(random_sequence(query_size, rand_gen));
+            trie->addQuery(random_sequence(MER_LEN, rand_gen));
         }
         std::string subject = random_sequence(subject_size, rand_gen);
         trie->searchTrieRecursively(trie->getRoot(), subject, 1);
@@ -57,11 +58,11 @@ std::string random_sequence(unsigned long size, std::mt19937_64 rand_gen)
 int main()
 {
     // Benchmark construction, search, and destruction.
-    unsigned int query_sizes[4] = {10, 20, 40, 80};
-    for(unsigned int size : query_sizes)
+    unsigned int query_counts[4] = {100, 1000, 10000, 100000};
+    for(unsigned int count : query_counts)
     {
-        std::cout << "Benchmarking query size " << size << "..." << std::endl;
-        std::chrono::duration<double> exec_duration = benchmark(size, 1000000);
+        std::cout << "Benchmarking query count of " << count << "..." << std::endl;
+        std::chrono::duration<double> exec_duration = benchmark(count, 1000000);
         std::cout << "Done." << std::endl << "Time: " << exec_duration.count() << " s" << std::endl;
     }
 
