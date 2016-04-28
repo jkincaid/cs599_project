@@ -10,13 +10,11 @@ using namespace std;
 using json = nlohmann::json;
 
 // Returns time in seconds.
-std::vector<std::vector<double>> benchmark_reads(std::string pathname);
-std::vector<std::vector<double>> benchmark_subject(std::string pathname);
+std::vector<std::vector<double>> benchmark_reads(std::string pathname, unsigned short iterCount = 100);
+std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigned short iterCount = 100);
 
-std::vector<std::vector<double>> benchmark_reads(std::string pathname)
+std::vector<std::vector<double>> benchmark_reads(std::string pathname, unsigned short iterCount)
 {
-    const int ITER_COUNT = 100;
-
     json read_obj;
     std::ifstream file;
     file.open(pathname);
@@ -45,7 +43,7 @@ std::vector<std::vector<double>> benchmark_reads(std::string pathname)
         {
             std::cout << "Running " << reads.size() << " queries..." << std::endl;
             start_time = std::chrono::high_resolution_clock::now();
-            for(int iter = 0; iter < ITER_COUNT; iter++)
+            for(int iter = 0; iter < iterCount; iter++)
             {
                 Trie* trie = new Trie();
                 for(json &read : reads)
@@ -56,7 +54,7 @@ std::vector<std::vector<double>> benchmark_reads(std::string pathname)
             }
             end_time = std::chrono::high_resolution_clock::now();
             duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
-            test_runs[i].push_back(duration.count() / (1000000000.0 * ITER_COUNT));
+            test_runs[i].push_back(duration.count() / (1000000000.0 * iterCount));
             std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
         }
     }
@@ -64,10 +62,8 @@ std::vector<std::vector<double>> benchmark_reads(std::string pathname)
     return test_runs;
 }
 
-std::vector<std::vector<double>> benchmark_subject(std::string pathname)
+std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigned short iterCount)
 {
-    const int ITER_COUNT = 100;
-
     json subj_tests;
     std::ifstream file;
     file.open(pathname);
@@ -97,7 +93,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname)
             std::cout << "Testing " << size / 1000 << "k subject w/ " << error_rates[i] << " error rate of "
                 << rate["rate"] << std::endl;
             duration = std::chrono::nanoseconds(0);
-            for(int iter = 0; iter < ITER_COUNT; iter++)
+            for(int iter = 0; iter < iterCount; iter++)
             {
                 Trie* trie = new Trie();
                 for(json &read : rate["reads"])
@@ -110,7 +106,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname)
                 duration += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
                 delete trie;
             }
-            test_runs[i].push_back(duration.count() / (1000000000.0 * ITER_COUNT));
+            test_runs[i].push_back(duration.count() / (1000000000.0 * iterCount));
             std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
         }
     }
@@ -121,14 +117,15 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname)
 // Test program
 int main()
 {
+    const unsigned short ITER_COUNT = 100;
     // Benchmark prefix trie construction
     std::cout << "Benchmarking reads..." << std::endl;
-    benchmark_reads("read_tests.json");
+    benchmark_reads("read_tests.json", ITER_COUNT);
     std::cout << "Done." << std::endl << std::endl;
 
     // Benchmark exhaustive search
     std::cout << "Benchmarking exhaustive search..." << std::endl;
-    benchmark_subject("subj_tests.json");
+    benchmark_subject("subj_tests.json", ITER_COUNT);
     std::cout << "Done." << std::endl << std::endl;
 
 
