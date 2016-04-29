@@ -117,23 +117,24 @@ int Trie::searchTrie(std::string subject)
  *                                      
  */
 
-std::vector<Trie::map> Trie::searchTrieRecursively(std::string subject, int limit)
+std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
 {
     std::vector<Trie::map> returned;
     std::stack<Trie::nodeMismatch> s;
     Trie::nodeMismatch nm;
     for (Node* child : this->root->children()) {
         nm.node = child;
-        nm.mismatches = new std::vector<int>;
+        nm.mismatches;
         s.push(nm);
     }
     
     while (!s.empty()) {
         nm = s.top();
-        std::vector<int> currentMismatch = *nm.mismatches;
+		s.pop();
+		std::vector<int> currentMismatch = nm.mismatches;
         
         // Mismatch increment
-        if (subject[nm.mismatches->size()] != nm.node->getContent()) {
+        if (subject[nm.mismatches.size()] != nm.node->getContent()) {
             currentMismatch.push_back(1);
             int totalMismatch = 0;
             for(int i : currentMismatch) {
@@ -141,6 +142,9 @@ std::vector<Trie::map> Trie::searchTrieRecursively(std::string subject, int limi
             }
             if (totalMismatch > limit) continue;
         }
+		else {
+			currentMismatch.push_back(0);
+		}
         
         // Reached end
         if(nm.node->getIndexMarker() != 0) {
@@ -153,9 +157,10 @@ std::vector<Trie::map> Trie::searchTrieRecursively(std::string subject, int limi
         
         // Adds children to stack
         for (Node* child : nm.node->children()) {
-            nm.node = child;
-            nm.mismatches = &currentMismatch;
-            s.push(nm);
+			Trie::nodeMismatch nmChild;
+			nmChild.node = child;
+			nmChild.mismatches = currentMismatch;
+            s.push(nmChild);
         }
         
     }

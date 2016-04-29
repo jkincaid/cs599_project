@@ -27,12 +27,11 @@ class Trie
 
         struct nodeMismatch {
             Node* node;
-            std::vector<int>* mismatches;
+            std::vector<int> mismatches;
         };
         void addQuery(std::string query);
         int searchTrie(std::string subject);
-        std::vector<map> searchTrieRecursively(std::string subject, int limit);
-        bool strictSearch(std::string subject);
+        std::vector<map> searchTrieStack(std::string subject, int limit);
         int getMismatch() { return this->bestMismatch; };
         int getIndex() { return this->bestIndex; };
         Node* getRoot() { return this->root; };
