@@ -4,6 +4,7 @@
 
 #include "trie.h"
 #include <iostream>
+#include <stack>
 
 // Constructor --> create an empty root
 Trie::Trie()
@@ -69,10 +70,9 @@ void Trie::addQuery(std::string query)
 }
 
 
-/* Input: std::string
-  (subject)
- * Function: attempts to fuzzy match subject to all queries up to X mismatches
- * Output: best query and score
+/* Input: std::string subject
+ * Function: attempts to strict search for subject to all queries
+ * Output: int index of read
  */
 int Trie::searchTrie(std::string subject)
 {
@@ -110,67 +110,60 @@ int Trie::searchTrie(std::string subject)
 /* 
  * This function will recursively search the prefix tree for the given subject,
  * Inputs: 
- *      Node* current       : A pointer to the root Node
- *      std::st *     subject      : The subject we are searching for
- *      int limit           : The maximum allowable number of mismatches (inclusive)
- *      int* bestMatch      : A pointer to our least amount of mismatches for our
- *                            best query. Initialized to our limit + 1
- *      int* bestIndex      : A pointer to the index of the best query so far.
- *                            Initialized to any value (preferably 0)
- *      int currentMismatch : Default value of the current number of mismatches.
- *      int subjectIndex    : Default value of what base in the subject we are
- *                            trying to match. 
+ *      std::string subject      : The subject we are searching for
+ *      int limit                : The maximum allowable number of mismatches (inclusive)
  * Outputs:
- *      Updates values of:
- *          int* bestMismatch
- *          int* bestIndex               
+ *      vector<map>              : A vector of maps
+ *                                      
  */
-void Trie::searchTrieRecursively(Node* current, std::string subject, int limit, int currentMismatch, int subjectIndex)
+
+std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
 {
-    // Check if the content of this Node matches our subject as long as current Node
-    // is not the root Node
-    // - if not then increment the mismatch counter
-    if(current->getContent() != subject[subjectIndex] && current->getIndexMarker() != -1)
-    {
-        currentMismatch++;
+    std::vector<Trie::map> returned;
+    std::stack<Trie::nodeMismatch> s;
+    Trie::nodeMismatch nm;
+    for (Node* child : this->root->children()) {
+        nm.node = child;
+        nm.mismatches;
+        s.push(nm);
     }
     
-    // Base case 1: Number of current mismatches is greater then limit or
-    // current mismatches is not better then our best
-    // - So we just end this path by returning
-    if(currentMismatch > limit || currentMismatch >= this->bestMismatch) 
-    {
-        return;
+    while (!s.empty()) {
+        nm = s.top();
+		s.pop();
+		std::vector<int> currentMismatch = nm.mismatches;
+        
+        // Mismatch increment
+        if (subject[nm.mismatches.size()] != nm.node->getContent()) {
+            currentMismatch.push_back(1);
+            int totalMismatch = 0;
+            for(int i : currentMismatch) {
+                if (i != 0) totalMismatch++;
+            }
+            if (totalMismatch > limit) continue;
+        }
+		else {
+			currentMismatch.push_back(0);
+		}
+        
+        // Reached end
+        if(nm.node->getIndexMarker() != 0) {
+            Trie::map map;
+            map.index = nm.node->getIndexMarker();
+            map.mismatches = currentMismatch;
+            returned.push_back(map);
+            continue;
+        }
+        
+        // Adds children to stack
+        for (Node* child : nm.node->children()) {
+			Trie::nodeMismatch nmChild;
+			nmChild.node = child;
+			nmChild.mismatches = currentMismatch;
+            s.push(nmChild);
+        }
+        
     }
     
-    // Base case 2: End of the Query
-    // If we have gotten to this point we know that this is better then our current best
-    // - So update values in the memory addresses given by pointers
-    if(current->getIndexMarker() != 0 && current->getIndexMarker() != -1)
-    {
-        this->bestMismatch = currentMismatch;
-        this->bestIndex = current->getIndexMarker();
-        return;
-    }    
-
-    // If this Node is not the root, then increment the subjectIndex by one, as
-    // we are going to check the next base in the subject. 
-    if(current->getIndexMarker() != -1) 
-    {
-        subjectIndex++;
-    }
-    
-    // Then, for each child of the current Node, call this method
-    // on the child. After, decrement the subject index
-    for(unsigned int i=0; i<(current->children().size()); i++)
-    {
-        searchTrieRecursively(current->children().at(i), subject, limit, currentMismatch, subjectIndex);
-    }
-    return;
-}
-// a working search function to make sure our trie is being built correctly
-//this is neede for debugging
-bool Trie::strictSearch(std::string subject) {
-
-    return false;
+    return returned;
 }

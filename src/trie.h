@@ -20,10 +20,18 @@ class Trie
         ~Trie();
 
         // Prototypes
+        struct map {
+            int index;
+            std::vector<int> mismatches;
+        };
+
+        struct nodeMismatch {
+            Node* node;
+            std::vector<int> mismatches;
+        };
         void addQuery(std::string query);
         int searchTrie(std::string subject);
-        void searchTrieRecursively(Node* current, std::string subject, int limit, int currentMismatch = 0, int subjectIndex = 0);
-        bool strictSearch(std::string subject);
+        std::vector<map> searchTrieStack(std::string subject, int limit);
         int getMismatch() { return this->bestMismatch; };
         int getIndex() { return this->bestIndex; };
         Node* getRoot() { return this->root; };

@@ -15,8 +15,7 @@ class Node
         Node()
         {
             content = ' ';
-            index = false;
-            nodeChildren.reserve(4);
+            index = 0;
         }
 
         // Deconstructor
