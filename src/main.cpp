@@ -84,7 +84,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     std::vector<std::string> error_rates = {"none" };
     std::chrono::nanoseconds duration;
     std::vector<std::vector<double>> test_runs;
-    printf("%s", error_rates[0].c_str());
+    printf("%s\n", error_rates[0].c_str());
     for(json &test : subj_tests)
     {
         test_runs.push_back(std::vector<double>());
@@ -102,8 +102,9 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 
             std::string tempSubject = test["subject"];
 
-            for(json &read : rate["reads"])
+            for(std::string read : rate["reads"])
             {
+               // printf("\n%s\n",read.c_str());
                 trie->addQuery(read);
             }
             printf("\nSize of the trie is %d\n", trie->getSize());
@@ -115,11 +116,14 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
                 //printf("%s\n", tempSubStr.c_str());
 
                 start_time = std::chrono::high_resolution_clock::now();
+
                 std::vector<Trie::map> results  = trie->searchTrieStack(tempSubStr , 0);
+
                 if(trie->searchTrie(tempSubStr) >=0 ){
 
                     printf("\nSubString is in trie \n%s\n",tempSubStr.c_str());
                 }
+
                 end_time = std::chrono::high_resolution_clock::now();
                 duration += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
                 printf("size of results %d\n",(int)results.size());
@@ -155,77 +159,77 @@ int main()
     //std::cout << "Done." << std::endl << std::endl;
 
 
-//	// Create trie
-//    Trie* trie = new Trie;
-//
-//	// Take the subject from the file and put it into a string
-//	std::ifstream subjectFile("subject.txt");
-//	string subject;
-//	std::getline(subjectFile, subject);
-//
-//	// Take every line from the input file and add it into the trie as a query
-//	std::ifstream file("sequences.txt");
-//	std::string str;
-//
-//	// Go through every line
-//	std::vector<string> reads;
-//	while (std::getline(file, str))
-//	{
-//		// Add to trie
-//		trie->addQuery(str);
-//		reads.push_back(str);
-//	}
-//
-//	// Output file
-//	std::ofstream out("output.txt");
-//
-//	// Split up the subject in groups of 50
-//	for (int i = 0; i <= subject.size() - 50; i++) {
-//		string subjectSnip = subject.substr(i, i + 50);
-//		// Search the trie for the subject snippet
-//		std::vector<Trie::map> solutions = trie->searchTrieStack(subjectSnip, 25);
-//
-//		// For each match found
-//		for (auto sol : solutions) {
-//			// Count total number of mismatches
-//			int size = 0;
-//			for (auto n : sol.mismatches)
-//				size += n;
-//
-//			// Print to file solution
-//			out << "Found subject from index " << i << " to " << i + 50 << endl;
-//			out << reads.at(sol.index) << " was the read matched, index number " << sol.index << " with: " << size << " mismatches." << endl;
-//			// If there were mismatches, print out their locations
-//			if (size != 0) {
-//				out << "Mismatches at locations: < ";
-//				for (int j = 0; j < 50; j++) {
-//					if (sol.mismatches.at(j) != 0) {
-//						out << j + i << " ";
-//					}
-//				}
-//				out << "> " << endl;
-//			}
-//		}
-//	}
-//
-//    // Free memory because we are good people
-//    delete trie;
-//
-//    // Success
-//    return 0;
+	// Create trie
+    Trie* trie = new Trie;
+
+	// Take the subject from the file and put it into a string
+	std::ifstream subjectFile("subject.txt");
+	string subject;
+	std::getline(subjectFile, subject);
+
+	// Take every line from the input file and add it into the trie as a query
+	std::ifstream file("sequences.txt");
+	std::string str;
+
+	// Go through every line
+	std::vector<string> reads;
+	while (std::getline(file, str))
+	{
+		// Add to trie
+		trie->addQuery(str);
+		reads.push_back(str);
+	}
+
+	// Output file
+	std::ofstream out("output.txt");
+
+	// Split up the subject in groups of 50
+	for (int i = 0; i < subject.length() - 50; i++) {
+		string subjectSnip = subject.substr((unsigned long long)i, (unsigned long long) 50);
+		// Search the trie for the subject snippet
+		std::vector<Trie::map> solutions = trie->searchTrieStack(subjectSnip, 0);
+
+		// For each match found
+		for (auto sol : solutions) {
+			// Count total number of mismatches
+			int size = 0;
+			for (auto n : sol.mismatches)
+				size += n;
+
+			// Print to file solution
+			out << "Found subject from index " << i << " to " << i + 50 << endl;
+			out << reads.at((unsigned long long)sol.index) << " was the read matched, index number " << sol.index << " with: " << size << " mismatches." << endl;
+			// If there were mismatches, print out their locations
+			if (size != 0) {
+				out << "Mismatches at locations: < ";
+				for (int j = 0; j < 50; j++) {
+					if (sol.mismatches.at((unsigned long long)j) != 0) {
+						out << j + i << " ";
+					}
+				}
+				out << "> " << endl;
+			}
+		}
+	}
+
+    // Free memory because we are good people
+    delete trie;
+
+    // Success
+    return 0;
 
 
 
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("subj_tests_no_errors.json",10);
-
-    for(std::vector<double> result : tmpRes){
-
-        for(double dres : result){
-
-            printf("%f\n", dres);
-        }
-
-    }
+//    std::vector<std::vector<double>> tmpRes = benchmark_subject("subj_tests_no_errors.json",10);
+//
+//    for(std::vector<double> result : tmpRes){
+//
+//        for(double dres : result){
+//
+//            printf("%f\n", dres);
+//        }
+//
+//    }
 
     return 0;
 }
