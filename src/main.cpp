@@ -64,6 +64,13 @@ std::vector<std::vector<double>> benchmark_reads(std::string pathname, unsigned 
     return test_runs;
 }
 
+/*benchmark_subject
+ * @param iterCount = unsigned short, # of mismatches to exhaustively search
+ * @param pathname = path name to json file with chaos format
+ *               // 0  x \\
+ *              // _ '' _ \\
+ *                  TTTT
+ */
 std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigned short iterCount)
 {
     json subj_tests;
