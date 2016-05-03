@@ -153,6 +153,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
                     //go through our results
                     //display for debug,..
                     //@todo store into file in format for visualization
+                    //@todo go through mismatch vector and coorelate to index
                     for(Trie::map resMap : results){
 
 			// Count total number of mismatches
@@ -265,6 +266,8 @@ int main()
         }
 
     }
+
+
 
     return 0;
 }
