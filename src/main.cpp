@@ -97,12 +97,13 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             for(int iter = 0; iter < iterCount; iter++)
             {
                 Trie* trie = new Trie();
+                std::vector<Trie::map> results;
                 for(json &read : rate["reads"])
                 {
                     trie->addQuery(read);
                 }
                 start_time = std::chrono::high_resolution_clock::now();
-                trie->searchTrieRecursively(trie->getRoot(), test["subject"], 1);
+                results = trie->searchTrieStack(test["subject"], 1);
                 end_time = std::chrono::high_resolution_clock::now();
                 duration += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
                 delete trie;
