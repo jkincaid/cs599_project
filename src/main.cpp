@@ -76,16 +76,20 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     json subj_tests;
     std::ifstream file;
     file.open(pathname);
+    std::string subjectStr;
+    std::string tmpStr;
+
     if(file.is_open())
     {
-        while (!file.eof())
+        while (std::getline(file,tmpStr))
         {
-            file >> subj_tests;
+            subjectStr += tmpStr;
+
         }
     }
     file.close();
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_time, end_time;
+    std::chrono::time_point<std::chrono::system_clock> start_time, end_time;
 
     //@todo uncomment for low and high error rate benchmarks
     //std::vector<std::string> error_rates = { "low", "high" };
@@ -93,35 +97,49 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     //and to show everything works
     //@todo remove none
     std::vector<std::string> error_rates = {"none" };
-    std::chrono::nanoseconds duration;
+    std::chrono::seconds duration;
     std::vector<std::vector<double>> test_runs;
     printf("%s\n", error_rates[0].c_str());
 
 
-    for(json &test : subj_tests)
-    {
+//    for(json &test : subj_tests)
+//    {
         test_runs.push_back(std::vector<double>());
 
-        int size = test["size"];
+       // int size = test["size"];
         for(int i = 0; i < error_rates.size(); i++)
         {
-            json &rate = test[error_rates[i]];
-            std::cout << "Testing " << size / 1000 << "k subject w/ " << error_rates[i] << " error rate of "
-                << rate["rate"] << std::endl;
-            duration = std::chrono::nanoseconds(0);
+            //json &rate = test[error_rates[i]];
+            std::cout << "Testing " << subjectStr.length() / 1000 << "k subject w/ " << error_rates[i] << " error rate of "
+                << error_rates.at(0) << std::endl;
+            duration = std::chrono::seconds(0);
+
+
+
+//
+//            std::string tempSubject = test["subject"];
+//
+//            //json to store results
+            json searchResults ;
+
+
+            //printf("\n%s\n", tempSubject.c_str());
+
+//            //loop through strings  of the reads array
+//            for(std::string read : rate["reads"])
+//            {
+//               //printf("\n%s\n",read.c_str());
+//                trie->addQuery(read);
+//            }
 
             Trie* trie = new Trie();
 
 
-            std::string tempSubject = test["subject"];
+            printf("\n%s\n", "Starting to build Trie");
 
-            //printf("\n%s\n", tempSubject.c_str());
-
-            //loop through strings  of the reads array
-            for(std::string read : rate["reads"])
-            {
-               //printf("\n%s\n",read.c_str());
-                trie->addQuery(read);
+            for(int i = 0; i < (int)subjectStr.length()/10;i++) {
+                std::string tempSubStr = subjectStr.substr((unsigned long long) i, 50);
+                trie->addQuery(tempSubStr);
             }
 
             //debug get the size of the trie
@@ -130,22 +148,24 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             //keep track of the results
             std::vector<Trie::map> results;
 
+
+
             //use the iter for number of mismatches
-            for(int iter = 0; iter < iterCount; iter++)
+            for(int iter = 0; iter < 1; iter++)
             {
                 //start the time before the search
-                start_time = std::chrono::high_resolution_clock::now();
+                start_time = std::chrono::system_clock::now();
                 //loop through the whole string exhaustively searching for matches
 
-                for(int i = 0; i < tempSubject.length();i++){
-                    std::string tempSubStr =  tempSubject.substr((unsigned long long) i, 50);
+                for(int i = 0; i < (int)subjectStr.length()/10;i++){
+                    std::string tempSubStr =  subjectStr.substr((unsigned long long) i, 50);
 
                     //debug
                     //printf("%s\n", tempSubStr.c_str());
                     //printf("\n%s %s\n", "trying a search", tempSubStr.c_str());
 
                     //search for string get the results
-                    results  = trie->searchTrieStack(tempSubStr , iter);
+                    results  = trie->searchTrieStack(tempSubStr , iterCount);
 //debug
 //                    if(trie->searchTrie(tempSubStr) >=0 ){
 //
@@ -153,22 +173,60 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 //                    }
 
                     //stop the time our search is over
-                    end_time = std::chrono::high_resolution_clock::now();
-                    duration += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+                    end_time = std::chrono::system_clock::now();
+                    duration += std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
                    // printf("size of results %d\n",(int)results.size());
+
+                    //store index of mismatches
+
+
+
+
+                    int resultCount = 0;
 
                     //go through our results
                     //display for debug,..
                     //@todo store into file in format for visualization
                     //@todo go through mismatch vector and coorelate to index
                     for(Trie::map resMap : results){
+                        json tmpRes;
+                        json indexList;
 
-			// Count total number of mismatches
+
+                        std::string indexListStr ="";
+                        std::vector<int> indexListMarks;
+                        // Count total number of mismatches
                         int numMM = 0;
-                        for (auto n : resMap.mismatches)
-                                numMM += n;
+                        int tmpIndex = 0;
+                        for (auto n : resMap.mismatches) {
 
-                        printf("Positive Query at :%d with # %d  of mismatches", resMap.index,numMM);
+                            numMM += n;
+                            if(n == 1){
+
+                               indexListStr += to_string(i+tmpIndex) + ",";
+                               // indexListMarks.push_back((i+tmpIndex));
+                            }
+                            tmpIndex++;
+                        }
+
+//
+//                        tmpRes["Qresult"]["Qindex"] = i;
+//                        tmpRes["Qresult"]["MMcount"]= numMM ;
+//                        tmpRes["Qresult"]["indexList"]= indexListStr.substr(0,indexListStr.length()-1);
+//
+//
+//
+//                        searchResults.push_back(tmpRes);
+//
+//                        //printf("\n%s\n", tmpRes.dump(4).c_str());
+//
+//
+//
+//                        printf("Positive Query at :%d with # %d  of mismatches", resMap.index,numMM);
+//
+//                       // printf("\n%s\n", searchResults.dump(4).c_str());
+
+
 
                     }
                 }
@@ -176,12 +234,13 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             }
 
             //@todo store to file for visualization
-            test_runs[i].push_back(duration.count() / (1000000000.0 * iterCount));
-            std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
+            //test_runs[i].push_back(duration.count() / iterCount);
+            //std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
 
             delete trie;
         }
-    }
+//        break;
+//    }
 
     return test_runs;
 }
@@ -263,7 +322,7 @@ int main()
 
 
     //@todo both benchmarks now that everything seems to be working
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("subj_tests_no_errors.json",3);
+    std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta",1);
 
     for(std::vector<double> result : tmpRes){
 
