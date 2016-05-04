@@ -3,6 +3,7 @@
 #include <random>
 #include <chrono>
 #include <string>
+#include <ctime>
 
 #include "json.hpp"
 #include "trie.h"
@@ -78,9 +79,12 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     file.open(pathname);
     std::string subjectStr;
     std::string tmpStr;
+    std::string header;
 
     if(file.is_open())
+
     {
+        std::getline(file,header);
         while (std::getline(file,tmpStr))
         {
             subjectStr += tmpStr;
@@ -137,14 +141,15 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 
             printf("\n%s\n", "Starting to build Trie");
 
-            for(int i = 0; i < (int)subjectStr.length()/10;i++) {
+            for(int i = 0; i < (int)subjectStr.length()/100;i++) {
                 std::string tempSubStr = subjectStr.substr((unsigned long long) i, 50);
                 trie->addQuery(tempSubStr);
             }
 
             //debug get the size of the trie
             printf("\nSize of the trie is %d\n", trie->getSize());
-
+            clock_t start;
+            start = clock();
             //keep track of the results
             std::vector<Trie::map> results;
 
@@ -157,7 +162,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
                 start_time = std::chrono::system_clock::now();
                 //loop through the whole string exhaustively searching for matches
 
-                for(int i = 0; i < (int)subjectStr.length()/10;i++){
+                for(int i = 0; i < (int)subjectStr.length()/100;i++){
                     std::string tempSubStr =  subjectStr.substr((unsigned long long) i, 50);
 
                     //debug
@@ -238,9 +243,15 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             //std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
 
             delete trie;
+
+            double duration1;
+            duration1 = (clock() - start)/ (double) CLOCKS_PER_SEC;
+
+            printf("\n%s : %f seconds","Exhaustive searches completed in",duration1);
         }
 //        break;
 //    }
+
 
     return test_runs;
 }
@@ -322,7 +333,7 @@ int main()
 
 
     //@todo both benchmarks now that everything seems to be working
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta",1);
+    std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta",2);
 
     for(std::vector<double> result : tmpRes){
 
