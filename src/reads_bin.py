@@ -1,0 +1,38 @@
+import os
+
+tmpStr = ""
+num_reads = 0
+
+with open(os.path.expanduser("~/ClionProjects/cs599_project/data/CS599_combo_reads.fasta") , 'r') as file:
+    count = 0
+
+
+    for line in file:
+        if " "  not in line:
+            tmpStr += line
+            count+=1
+
+        #print(str(count))
+        if count == 25000:
+
+            with open(os.getcwd()+"data/combo_reads_"+str(num_reads),'w') as ofile:
+
+                for line in tmpStr.splitlines():
+                    ofile.write(line[:50] +"\n")
+                    ofile.write(line[50:]+"\n")
+                    #print(line[:50], line[50:])
+
+            num_reads +=1
+            tmpStr = ""
+            count = 0
+
+print(tmpStr)
+if tmpStr:
+
+    with open("combo_reads_"+str(num_reads),'w') as ofile:
+
+        for line in tmpStr.splitlines():
+            ofile.write(line[:50] +"\n")
+            ofile.write(line[50:]+"\n")
+
+    #print(tmpStr)

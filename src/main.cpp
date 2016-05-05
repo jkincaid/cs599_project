@@ -105,6 +105,9 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     std::vector<std::string> error_rates = {"none","one","two","three","four" };
     std::chrono::seconds duration;
     std::vector<std::vector<double>> test_runs;
+    std::vector<double> trieBuildTimes;
+    std::vector<double> trieSearchTimes;
+
     printf("%s\n", error_rates[0].c_str());
 
 
@@ -140,6 +143,8 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 
             Trie* trie = new Trie();
 
+            clock_t trieBuildClockStart;
+            trieBuildClockStart = clock();
 
             printf("\n%s\n", "Starting to build Trie");
 
@@ -147,6 +152,11 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
                 std::string tempSubStr = subjectStr.substr((unsigned long long) i, 50);
                 trie->addQuery(tempSubStr);
             }
+
+            double trieBuildDuration;
+            trieBuildDuration = (clock() - trieBuildClockStart)/ (double) CLOCKS_PER_SEC;
+
+            trieBuildTimes.push_back(trieBuildDuration);
 
             //debug get the size of the trie
             printf("\nSize of the trie is %d\n", trie->getSize());
@@ -216,43 +226,25 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
                             tmpIndex++;
                         }
 
-//
-//                        tmpRes["Qresult"]["Qindex"] = i;
-//                        tmpRes["Qresult"]["MMcount"]= numMM ;
-//                        tmpRes["Qresult"]["indexList"]= indexListStr.substr(0,indexListStr.length()-1);
-//
-//
-//
-//                        searchResults.push_back(tmpRes);
-//
-//                        //printf("\n%s\n", tmpRes.dump(4).c_str());
-//
-//
-//
-//                        printf("Positive Query at :%d with # %d  of mismatches", resMap.index,numMM);
-//
-//                       // printf("\n%s\n", searchResults.dump(4).c_str());
-
-
-
                     }
                 }
 
             }
 
-            //@todo store to file for visualization
-            //test_runs[i].push_back(duration.count() / iterCount);
-            //std::cout << "Time: " << test_runs[i].back() << " s" << std::endl;
 
             delete trie;
 
             double duration1;
             duration1 = (clock() - start)/ (double) CLOCKS_PER_SEC;
+            trieSearchTimes.push_back(duration1);
 
             printf("\n%s : %f seconds","Exhaustive searches completed in",duration1);
         }
 //        break;
 //    }
+
+    test_runs[0] = trieBuildTimes;
+    test_runs[1] = trieSearchTimes;
 
 
     return test_runs;

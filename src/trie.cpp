@@ -5,7 +5,7 @@
 #include "trie.h"
 #include <iostream>
 #include <stack>
-#include <c++/queue>
+#include <queue>
 
 // Constructor --> create an empty root
 Trie::Trie()

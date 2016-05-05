@@ -30,3 +30,6 @@
 
 # JetBrain products-related folder
 .idea/
+
+#data folder
+data/*
