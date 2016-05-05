@@ -5,6 +5,7 @@
 #include "trie.h"
 #include <iostream>
 #include <stack>
+#include <c++/queue>
 
 // Constructor --> create an empty root
 Trie::Trie()
@@ -18,7 +19,26 @@ Trie::Trie()
 }
 
 // Deconstructor --> free memory
-Trie::~Trie() {}
+Trie::~Trie() {
+
+//    std::queue<Node*> nodesToDelete;
+//    Node* current = this->root ;
+//    nodesToDelete.push(current);
+//
+//    while(!nodesToDelete.empty()){
+//
+//        current = nodesToDelete.front();
+//        nodesToDelete.pop();
+//
+//        for(Node* node : current->children()){
+//            nodesToDelete.push(node);
+//        }
+//
+//        free(current);
+//    }
+
+
+}
 
 /* Input: std::string
 

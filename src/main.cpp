@@ -80,7 +80,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     std::string subjectStr;
     std::string tmpStr;
     std::string header;
-
+    int linecount = 0;
     if(file.is_open())
 
     {
@@ -88,10 +88,12 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
         while (std::getline(file,tmpStr))
         {
             subjectStr += tmpStr;
-
+            linecount++;
         }
     }
     file.close();
+
+    printf("\n line count is %d\n",linecount);
 
     std::chrono::time_point<std::chrono::system_clock> start_time, end_time;
 
@@ -100,7 +102,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     //temp testing hard coded to test zero error rate
     //and to show everything works
     //@todo remove none
-    std::vector<std::string> error_rates = {"none" };
+    std::vector<std::string> error_rates = {"none","one","two","three","four" };
     std::chrono::seconds duration;
     std::vector<std::vector<double>> test_runs;
     printf("%s\n", error_rates[0].c_str());
@@ -333,7 +335,7 @@ int main()
 
 
     //@todo both benchmarks now that everything seems to be working
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta",2);
+    std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta",1);
 
     for(std::vector<double> result : tmpRes){
 
