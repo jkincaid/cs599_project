@@ -103,7 +103,8 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     //and to show everything works
     //@todo remove none
     std::vector<std::string> error_rates = {"none","one","two","three","four" };
-    std::chrono::seconds duration;
+    int combo_read_index = 5;
+
     std::vector<std::vector<double>> test_runs;
     std::vector<double> trieBuildTimes;
     std::vector<double> trieSearchTimes;
@@ -111,50 +112,35 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
     printf("%s\n", error_rates[0].c_str());
 
 
-//    for(json &test : subj_tests)
-//    {
-        test_runs.push_back(std::vector<double>());
+
 
        // int size = test["size"];
-        for(int i = 0; i < error_rates.size(); i++)
+        for(int i = 0; i < combo_read_index ;i++)
         {
             //json &rate = test[error_rates[i]];
-            std::cout << "Testing " << subjectStr.length() / 1000 << "k subject w/ " << error_rates[i] << " error rate of "
+            std::cout << "Testing " << subjectStr.length() << " length subject w/ " << error_rates[i] << " error rate of "
                 << error_rates.at(0) << std::endl;
-            duration = std::chrono::seconds(0);
 
 
-
-//
-//            std::string tempSubject = test["subject"];
-//
-//            //json to store results
-            json searchResults ;
-
-
-            //printf("\n%s\n", tempSubject.c_str());
-
-//            //loop through strings  of the reads array
-//            for(std::string read : rate["reads"])
-//            {
-//               //printf("\n%s\n",read.c_str());
-//                trie->addQuery(read);
-//            }
 
             Trie* trie = new Trie();
 
             clock_t trieBuildClockStart;
             trieBuildClockStart = clock();
+            std::ifstream combo_read;
+            combo_read.open("data/combo_reads_"+to_string(i));
 
-            printf("\n%s\n", "Starting to build Trie");
-
-            for(int i = 0; i < (int)subjectStr.length()/100;i++) {
-                std::string tempSubStr = subjectStr.substr((unsigned long long) i, 50);
-                trie->addQuery(tempSubStr);
-            }
+            if(combo_read.is_open()){
+                std::string tmpLine;
+                while(std::getline(combo_read,tmpLine))
+                    trie->addQuery(tmpLine);
+            }else
+                printf("file could not be opened");
 
             double trieBuildDuration;
             trieBuildDuration = (clock() - trieBuildClockStart)/ (double) CLOCKS_PER_SEC;
+
+            printf("Trie constructed in %f seconds\n", trieBuildDuration);
 
             trieBuildTimes.push_back(trieBuildDuration);
 
@@ -167,69 +153,47 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 
 
 
-            //use the iter for number of mismatches
-            for(int iter = 0; iter < 1; iter++)
-            {
-                //start the time before the search
-                start_time = std::chrono::system_clock::now();
-                //loop through the whole string exhaustively searching for matches
 
-                for(int i = 0; i < (int)subjectStr.length()/100;i++){
-                    std::string tempSubStr =  subjectStr.substr((unsigned long long) i, 50);
+            for(int i = 0; i < (int)subjectStr.length();i++){
+                std::string tempSubStr =  subjectStr.substr((unsigned long long) i, 50);
 
-                    //debug
-                    //printf("%s\n", tempSubStr.c_str());
-                    //printf("\n%s %s\n", "trying a search", tempSubStr.c_str());
+                //debug
+                //printf("%s\n", tempSubStr.c_str());
+                //printf("\n%s %s\n", "trying a search", tempSubStr.c_str());
 
-                    //search for string get the results
-                    results  = trie->searchTrieStack(tempSubStr , iterCount);
+                //search for string get the results
+                results  = trie->searchTrieStack(tempSubStr , iterCount);
 //debug
-//                    if(trie->searchTrie(tempSubStr) >=0 ){
 //
-//                        printf("\nSubString is in trie \n%s\n",tempSubStr.c_str());
-//                    }
+                //store index of mismatches
 
-                    //stop the time our search is over
-                    end_time = std::chrono::system_clock::now();
-                    duration += std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
-                   // printf("size of results %d\n",(int)results.size());
+                int resultCount = 0;
 
-                    //store index of mismatches
+                //go through our results
+                //display for debug,..
+                //@todo store into file in format for visualization
+                //@todo go through mismatch vector and coorelate to index
+                for(Trie::map resMap : results){
 
+                    std::string indexListStr ="";
+                    std::vector<int> indexListMarks;
+                    // Count total number of mismatches
+                    int numMM = 0;
+                    int tmpIndex = 0;
+                    for (auto n : resMap.mismatches) {
 
+                        numMM += n;
+                        if(n == 1){
 
-
-                    int resultCount = 0;
-
-                    //go through our results
-                    //display for debug,..
-                    //@todo store into file in format for visualization
-                    //@todo go through mismatch vector and coorelate to index
-                    for(Trie::map resMap : results){
-                        json tmpRes;
-                        json indexList;
-
-
-                        std::string indexListStr ="";
-                        std::vector<int> indexListMarks;
-                        // Count total number of mismatches
-                        int numMM = 0;
-                        int tmpIndex = 0;
-                        for (auto n : resMap.mismatches) {
-
-                            numMM += n;
-                            if(n == 1){
-
-                               indexListStr += to_string(i+tmpIndex) + ",";
-                               // indexListMarks.push_back((i+tmpIndex));
-                            }
-                            tmpIndex++;
+                            indexListMarks.push_back((i+tmpIndex));
                         }
-
+                        tmpIndex++;
                     }
-                }
 
+                }
             }
+
+
 
 
             delete trie;
@@ -327,14 +291,15 @@ int main()
 
 
     //@todo both benchmarks now that everything seems to be working
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta",1);
+    std::vector<std::vector<double>> tmpRes = benchmark_subject("data/BA.fasta",1);
 
     for(std::vector<double> result : tmpRes){
 
         for(double dres : result){
 
-            printf("%f\n", dres);
+            printf("%f ", dres);
         }
+        printf("\n");
 
     }
 
