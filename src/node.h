@@ -19,7 +19,7 @@ class Node
         }
 
         // Deconstructor
-        ~Node() {}
+        ~Node() { nodeChildren.clear();}
 
         // Return base
         char getContent() { return content; }

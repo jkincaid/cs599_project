@@ -128,12 +128,16 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             clock_t trieBuildClockStart;
             trieBuildClockStart = clock();
             std::ifstream combo_read;
-            combo_read.open("data/combo_reads_"+to_string(i));
+            combo_read.open("/home/justin/ClionProjects/cs599_project/data/combo_reads_"+to_string(i));
 
             if(combo_read.is_open()){
                 std::string tmpLine;
-                while(std::getline(combo_read,tmpLine))
+                int count = 1;
+                while(std::getline(combo_read,tmpLine)) {
                     trie->addQuery(tmpLine);
+                    count++;
+
+                }
             }else
                 printf("file could not be opened");
 
@@ -154,7 +158,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 
 
 
-            for(int i = 0; i < (int)subjectStr.length();i++){
+            for(int i = 0; i < (int)subjectStr.length()/100;i++){
                 std::string tempSubStr =  subjectStr.substr((unsigned long long) i, 50);
 
                 //debug
@@ -202,13 +206,13 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             duration1 = (clock() - start)/ (double) CLOCKS_PER_SEC;
             trieSearchTimes.push_back(duration1);
 
-            printf("\n%s : %f seconds","Exhaustive searches completed in",duration1);
+
         }
 //        break;
 //    }
 
-    test_runs[0] = trieBuildTimes;
-    test_runs[1] = trieSearchTimes;
+    test_runs.push_back(trieBuildTimes);
+    test_runs.push_back(trieSearchTimes);
 
 
     return test_runs;
@@ -291,8 +295,9 @@ int main()
 
 
     //@todo both benchmarks now that everything seems to be working
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("data/BA.fasta",1);
+    std::vector<std::vector<double>> tmpRes = benchmark_subject("/home/justin/ClionProjects/cs599_project/data/BA.fasta",1);
 
+    printf("\n%s : seconds","Exhaustive searches completed : trie build times , query search times respectively\n");
     for(std::vector<double> result : tmpRes){
 
         for(double dres : result){

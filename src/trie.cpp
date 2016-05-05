@@ -21,21 +21,21 @@ Trie::Trie()
 // Deconstructor --> free memory
 Trie::~Trie() {
 
-//    std::queue<Node*> nodesToDelete;
-//    Node* current = this->root ;
-//    nodesToDelete.push(current);
-//
-//    while(!nodesToDelete.empty()){
-//
-//        current = nodesToDelete.front();
-//        nodesToDelete.pop();
-//
-//        for(Node* node : current->children()){
-//            nodesToDelete.push(node);
-//        }
-//
-//        free(current);
-//    }
+    std::queue<Node*> nodesToDelete;
+    Node* current = this->root ;
+    nodesToDelete.push(current);
+
+    while(!nodesToDelete.empty()){
+
+        current = nodesToDelete.front();
+        nodesToDelete.pop();
+
+        for(Node* node : current->children()){
+            nodesToDelete.push(node);
+        }
+
+        delete(current);
+    }
 
 
 }
@@ -189,6 +189,6 @@ std::vector<Trie::map> Trie::searchTrieStack(std::string subject, int limit)
         }
         
     }
-    
+    s.empty();
     return returned;
 }
