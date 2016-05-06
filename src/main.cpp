@@ -72,7 +72,7 @@ std::vector<std::vector<double>> benchmark_reads(std::string pathname, unsigned 
  *              // _ '' _ \\
  *                  TTTT
  */
-std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigned short iterCount)
+std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigned short iterCount, int trieSize, int subejectSearchRatio, bool singleSearch)
 {
     json subj_tests;
     std::ifstream file;
@@ -118,8 +118,8 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
         for(int i = 0; i < combo_read_index ;i++)
         {
             //json &rate = test[error_rates[i]];
-            std::cout << "Testing " << subjectStr.length() << " length subject w/ " << error_rates[i] << " error rate of "
-                << error_rates.at(0) << std::endl;
+            std::cout << "Testing " << subjectStr.length() << " length subject " << error_rates[i] << ", w/ error rate of "
+                << 0.05 << std::endl;
 
 
 
@@ -128,14 +128,30 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             clock_t trieBuildClockStart;
             trieBuildClockStart = clock();
             std::ifstream combo_read;
-            combo_read.open("/home/justin/ClionProjects/cs599_project/data/combo_reads_"+to_string(i));
+            combo_read.open("combo_reads_errorRate_5_"+to_string(i));
+
+            bool adjustTrieSize = false;
+            int trieSizeLimit =1;
+
+            if(trieSize > 0) {
+                adjustTrieSize = true;
+                trieSizeLimit = trieSize;
+            }
+
+
 
             if(combo_read.is_open()){
                 std::string tmpLine;
                 int count = 1;
                 while(std::getline(combo_read,tmpLine)) {
+
                     trie->addQuery(tmpLine);
                     count++;
+                    if(adjustTrieSize && trieSizeLimit % count ==0 ){
+
+                        break;
+                    }
+
 
                 }
             }else
@@ -155,18 +171,23 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
             //keep track of the results
             std::vector<Trie::map> results;
 
+            if(subejectSearchRatio <= 0){
+
+                subejectSearchRatio = (int) subjectStr.length();
+            }
 
 
-
-            for(int i = 0; i < (int)subjectStr.length()/100;i++){
+            for(int i = 0; i < (int)subejectSearchRatio;i++){
                 std::string tempSubStr =  subjectStr.substr((unsigned long long) i, 50);
 
                 //debug
                 //printf("%s\n", tempSubStr.c_str());
                 //printf("\n%s %s\n", "trying a search", tempSubStr.c_str());
-
-                //search for string get the results
-                results  = trie->searchTrieStack(tempSubStr , iterCount);
+                if(!singleSearch)
+                    //search for string get the results
+                     results  = trie->searchTrieStack(tempSubStr , iterCount);
+                else
+                    trie->searchTrie(tempSubStr);
 //debug
 //
                 //store index of mismatches
@@ -200,7 +221,7 @@ std::vector<std::vector<double>> benchmark_subject(std::string pathname, unsigne
 
 
 
-            delete trie;
+
 
             double duration1;
             duration1 = (clock() - start)/ (double) CLOCKS_PER_SEC;
@@ -295,18 +316,69 @@ int main()
 
 
     //@todo both benchmarks now that everything seems to be working
-    std::vector<std::vector<double>> tmpRes = benchmark_subject("/home/justin/ClionProjects/cs599_project/data/BA.fasta",1);
 
-    printf("\n%s : seconds","Exhaustive searches completed : trie build times , query search times respectively\n");
-    for(std::vector<double> result : tmpRes){
+    int trieSizeList[] = {0,0,25000};
+    int subjectSearchList[] ={50000,25000,50000};
+    std::string trySizeStr;
+    std::string subjectSearchLengthStr;
 
-        for(double dres : result){
+//    for(int test = 0; test < 3;test++) {
+//
+//        std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta", 1,trieSizeList[test],subjectSearchList[test],true);
+//
+//        if(trieSizeList[test] == 0)
+//           trySizeStr  = "50000 queries";
+//        else
+//            trySizeStr  = "25000 queries";
+//
+//        subjectSearchLengthStr = to_string(subjectSearchList[test]);
+//
+//
+//        printf("\nNon exhaustive searches completed : trie build times , query search times respectively\nNumber of queries : %s\nNumber of Searches : %s\n",trySizeStr.c_str(),subjectSearchLengthStr.c_str());
+//        for(std::vector<double> result : tmpRes){
+//
+//            for(double dres : result){
+//
+//                printf("%f ", dres);
+//            }
+//            printf("\n");
+//
+//        }
+//
+//    }
 
-            printf("%f ", dres);
+for(int mismatch = 0; mismatch <3;mismatch++) {
+
+    for (int test = 0; test < 3; test++) {
+
+        std::vector<std::vector<double>> tmpRes = benchmark_subject("BA.fasta", (unsigned short)mismatch, trieSizeList[test],
+                                                                    subjectSearchList[test], false);
+
+        if (trieSizeList[test] == 0)
+            trySizeStr = "50000 queries";
+        else
+            trySizeStr = "25000 queries";
+
+        subjectSearchLengthStr = to_string(subjectSearchList[test]);
+
+
+        printf("\nExhaustive searches completed : with %d mismatches, \n trie build times , query search times respectively\nNumber of queries : %s\nNumber of Searches : %s\n",
+               mismatch, trySizeStr.c_str(), subjectSearchLengthStr.c_str());
+        for (std::vector<double> result : tmpRes) {
+
+            for (double dres : result) {
+
+                printf("%f ", dres);
+            }
+            printf("\n");
+
         }
-        printf("\n");
 
     }
+
+}
+
+
 
 
 
